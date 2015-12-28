@@ -10,7 +10,7 @@ def debug(msg):
         print msg
 
 
-class VM:
+class VirtualMachine:
     def __init__(self, input_file):
         with open(input_file, 'rb') as file:
             self.memory = file.read()
@@ -93,6 +93,7 @@ class VM:
 
     def run_next_instruction(self):
         addr = self.reg['addr']
+
         inst = self._read_next()
         command = ''
 
@@ -209,7 +210,7 @@ class VM:
 
         elif inst == 17:
             arg = self._parse_value()
-            command = call_function(arg, self.reg)
+            command = call_function(arg, self.reg, self)
             if command == False:
                 self.stack.append(self.reg['addr'])
                 self.reg['addr'] = arg
@@ -244,10 +245,14 @@ class VM:
 
 
 if __name__ == '__main__':
-    machine = VM('input/challenge.bin')
+    machine = VirtualMachine('input/challenge.bin')
     machine.load_state('teleporter')
 
     while True:
+        # Override the teleporter confirmation
+        if machine.reg['addr'] == 5489:
+            machine.reg['addr'] = 5498
+            # machine.reg['addr'] = 5579
         output = machine.run_next_instruction()
         debug(output)
         if output == 'stop':
